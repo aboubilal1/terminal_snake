@@ -12,12 +12,8 @@
 //     SetConsoleMode(h, mode | 0x4);  // ENABLE_VIRTUAL_TERMINAL_PROCESSING
 // }
 double getCurrentTime();
-
-
-int next_frame(double *last_move, int *dt, int fps);
-
+int next_frame(double *last_move, int *dalta_time, int fps);
 int setit(int dir);
-
 void quit(snake_head *s, double *last_move);
 
 
@@ -33,19 +29,18 @@ int main(void) {
     *last_move = start;
     
     int dir;
-    int fps = 1000/30, dt = fps;
+    int fps = 1000/30, dalta_time = fps;
     while(1){
-        if (next_frame(last_move, &dt, fps)){
-            Sleep(100);
+        if (next_frame(last_move, &dalta_time, fps)){
+            Sleep(75);
             if (kbhit()) {
-                printf("const char *\n");
 
                 dir = getch();  // Real-time input
                 // for test the grid manually
-                // if(dir == 'a') go_to_point(s->grid, s->grid->posX - 1, s->grid->posY);
-                // if(dir == 'd') go_to_point(s->grid, s->grid->posX + 1, s->grid->posY);
-                // if(dir == 'w') go_to_point(s->grid, s->grid->posX, s->grid->posY - 1);
-                // if(dir == 's') go_to_point(s->grid, s->grid->posX, s->grid->posY + 1);
+                // if(dir == 'a') go_to_point(s->grid, s->grid->cursor_position_X - 1, s->grid->cursor_position_Y);
+                // if(dir == 'd') go_to_point(s->grid, s->grid->cursor_position_X + 1, s->grid->cursor_position_Y);
+                // if(dir == 'w') go_to_point(s->grid, s->grid->cursor_position_X, s->grid->cursor_position_Y - 1);
+                // if(dir == 's') go_to_point(s->grid, s->grid->cursor_position_X, s->grid->cursor_position_Y + 1);
                 if(dir == 32) add_body_part(s);
                 
                 // for moving the snake
@@ -60,11 +55,11 @@ int main(void) {
                 }// ESC to quit
                 direction(&s, &dir);
             }
-            set_direction(&s, dt);
+            set_direction(&s, dalta_time);
         }
 
     
-    //     // printf("snake head in x = %d; y = %d\n", s->body->x, s->body->y);
+        // printf("snake head in x = %d; y = %d\n", s->body->x, s->body->y);
     }    
     // set_point_in_grid(s->grid, s->body->x, s->body->y, '@');
     // set_point_in_grid(s->grid, 4, 4, 'O');
@@ -78,11 +73,11 @@ double getCurrentTime() {
     return (tv.tv_sec + tv.tv_usec / 1000000.0) * 1000;
 }
 
-int next_frame(double *last_move, int *dt, int fps){
+int next_frame(double *last_move, int *dalta_time, int fps){
     double now = getCurrentTime();
-    *dt = (int) (now - *last_move);
-    if (*dt >= fps){
-        // printf("dt: %d, now: %f, last_move: %f\n", dt, now, *last_move);
+    *dalta_time = (int) (now - *last_move);
+    if (*dalta_time >= fps){
+        // printf("dalta_time: %d, now: %f, last_move: %f\n", dalta_time, now, *last_move);
         *last_move = now;
         return 1;
     }

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 
-void init_snake(snake_head **head){
+void init_snake(snake_head **snake){
     /* initialize the snake with default values
         { 
           left, right, up, down
@@ -14,149 +14,149 @@ void init_snake(snake_head **head){
         }
         and add 3 body parts at the start (0,0)
     */ 
-    (*head) = malloc(sizeof(snake_head));
-    if (!(*head)) return;
+    (*snake) = malloc(sizeof(snake_head));
+    if (!(*snake)) return;
     
-    (*head)->right = RIGHT;
-    (*head)->left = LEFT;
-    (*head)->up = UP;
-    (*head)->down = DOWN;
-    
-    
-    (*head)->speed = 20;
-    
-    (*head)->dirx = 1;
-    (*head)->diry = 0;
-    
-    (*head)->x = 0;
-    (*head)->y = 0;
+    (*snake)->right = RIGHT;
+    (*snake)->left = LEFT;
+    (*snake)->up = UP;
+    (*snake)->down = DOWN;
     
     
-    // (*head)->replaced = malloc(3 * sizeof(body_part));
+    (*snake)->speed = 20;
     
-    // init_grid(&(*head)->grid, 10, 10, EMPTY);
+    (*snake)->dirx = 1;
+    (*snake)->diry = 0;
+    
+    (*snake)->x = 0;
+    (*snake)->y = 0;
+    
+        
+    init_grid(&(*snake)->grid, 10, 10, EMPTY);
 
-    init_queue(&(*head)->direction);
-    queue_in((*head)->direction, 3);
+
+    init_queue(&(*snake)->direction_queue);
+    queue_in((*snake)->direction_queue, 3);
     
-    (*head)->grid = malloc(sizeof(grid));
-    init_body_ds(&(*head)->body_ds);
+    init_body_ds(&(*snake)->body_data_structure);
     
-    add_body_part(*head);
-    add_body_part(*head);
-    add_body_part(*head);
+    add_body_part(*snake);
+    add_body_part(*snake);
+    add_body_part(*snake);
 
 }
 
 
 // to add here
-void add_body_part(snake_head *head){    
-    // add a body part at the head of the snake data structure
+void add_body_part(snake_head *snake){    
+    // add a body part at the snake of the snake data structure
     // that get the same position as the last
     body_part data ;
-    if (empty_body_ds(head->body_ds)) {
-        data = (body_part) {head->x, head->y, NULL}; // for the head initialization 
+    if (empty_body_ds(snake->body_data_structure)) {
+        data = (body_part) {snake->x, snake->y, NULL}; // for the snake initialization 
     }else{
-        head_body_ds(head->body_ds, &data);
+        head_body_ds(snake->body_data_structure, &data);
     }
-    
-    body_ds_inhead(head->body_ds, data);
-    printf("add body part2.1 x: %d y: %d\t", data.x, data.y);
-    set_before_tail(head->body_ds);
+    body_ds_in_head(snake->body_data_structure, data);
+    // printf("add body part2.1 x: %d y: %d\t", data.x, data.y);
+
+    // printf("%p add body part1\n", snake->body_data_structure->head);
+    // printf("%p add body part1\n", snake->body_data_structure->befor_tail);
+    // printf("%p add body part1\n", snake->body_data_structure->tail);
 }
 
 
-void set_direction(snake_head **head, int dt){
-    // (*head)->frames_to_move += dt;
-    int dir;
-    head_queue((*head)->direction, &dir);
-    if((*head)->speed <= 0) return;
+void set_direction(snake_head **snake, int dalta_time){
+    // (*snake)->frames_to_move += dalta_time;
+    int direction;
+    head_queue((*snake)->direction_queue, &direction);
+    if((*snake)->speed <= 0) return;
     
     // set_cordinate the direction of the snake
-    if ((*head)->dirx == 0 && (dir == (*head)->left || dir == (*head)->right)) {
-        (*head)->diry = 0;
-        if(dir == (*head)->left){
-            (*head)->dirx = -1;
+    if ((*snake)->dirx == 0 && (direction == (*snake)->left || direction == (*snake)->right)) {
+        (*snake)->diry = 0;
+        if(direction == (*snake)->left){
+            (*snake)->dirx = -1;
         }else{
-            (*head)->dirx = 1;
+            (*snake)->dirx = 1;
         }
-    }else if ((*head)->diry == 0 && (dir == (*head)->up || dir == (*head)->down)) {
-        (*head)->dirx = 0;
-        if(dir == (*head)->up){
-            (*head)->diry = -1;
+    }else if ((*snake)->diry == 0 && (direction == (*snake)->up || direction == (*snake)->down)) {
+        (*snake)->dirx = 0;
+        if(direction == (*snake)->up){
+            (*snake)->diry = -1;
         }else{
-            (*head)->diry = 1;
+            (*snake)->diry = 1;
         }
     }
 
-    move_it(head, dt);
+    move_it(snake, dalta_time);
 }
 
-int calculate_new_position(snake_head *head, double *new_x, double *new_y, int dt){
-    if (head == NULL) return 0;
-    int dirx  = head->dirx , diry = head->diry;
-    int speed = head->speed;
+int calculate_new_position(snake_head *snake, double *new_x, double *new_y, int dalta_time){
+    if (snake == NULL) return 0;
+    int dirx  = snake->dirx , diry = snake->diry;
+    int speed = snake->speed;
 
     // calculate the new position
-    double deltaX = ((double)(dirx * speed)) / (dt);
-    double deltaY = ((double)(diry * speed)) / (dt);
+    double deltaX = ((double)(dirx * speed)) / (dalta_time);
+    double deltaY = ((double)(diry * speed)) / (dalta_time);
 
-    *new_x = head->x + deltaX;
-    *new_y = head->y + deltaY;
+    *new_x = snake->x + deltaX;
+    *new_y = snake->y + deltaY;
     return 1;
 }
 
-void move_it(snake_head **head, int dt){
+void move_it(snake_head **snake, int dalta_time){
     
     double new_x = 0.0, new_y = 0.0;
-    if(!calculate_new_position(*head, &new_x, &new_y, dt))return;
-    printf("move it x: %f y: %f\n", new_x, new_y);
+    if(!calculate_new_position(*snake, &new_x, &new_y, dalta_time))return;
+    // printf("move it x: %f y: %f\n", new_x, new_y);
     // check if the new position is deffrent from the old one
-    if((int)new_x != (int)(*head)->x || (int)new_y != (int)(*head)->y){
+    if((int)new_x != (int)(*snake)->x || (int)new_y != (int)(*snake)->y){
         // check if there is only one direction in the queue
         // if so stay in the same direction
-        // else unqueue the head
-        if(!one_element_queue((*head)->direction)){
+        // else unqueue from the snake direction queue
+        if(!one_element_queue((*snake)->direction_queue)){
             int *dummy = malloc(sizeof(int));
-            unqueue((*head)->direction, dummy);
+            int *dummy_test = malloc(sizeof(int));
+            unqueue((*snake)->direction_queue, dummy);
+            head_queue((*snake)->direction_queue, dummy_test);
+            while(*dummy == *dummy_test && !one_element_queue((*snake)->direction_queue)){
+                unqueue((*snake)->direction_queue, dummy_test); // to remove the repeated move at the same sequence
+            }
             free(dummy);
+            free(dummy_test);
         }
-        // remove the head and add a new part to the end with the new position
+        // remove the snake and add a new part to the end with the new position
         body_part *new_part = malloc(sizeof(body_part));
-        unbody_ds((*head)->body_ds, new_part);
-        set_cordinate(new_part, (int)new_x, (int)new_y);
-        body_ds_intail((*head)->body_ds, *new_part);
-        printf("after ");
-        free(new_part);
-        // add the new parts to the replaced part
-        // add_replace_part(head, get_x((*head)->body), get_y((*head)->body), BODY, 1);
-        // add_replace_part(head, normalize((int)new_x), normalize((int)new_y), HEAD, 2);
         
+        set_cordinate(new_part, (int)new_x, (int)new_y);
+        body_ds_in_tail((*snake)->body_data_structure, *new_part);
         // move the snake
-
-        // ############# the problem is here ###################
-        // display_moves(*head, (*head)->grid);
-
+        display_moves(*snake);
+        
+        unbody_ds((*snake)->body_data_structure, new_part);
+        free(new_part);
     }
 
-    (*head)->x = new_x;
-    (*head)->y = new_y;
+    (*snake)->x = new_x;
+    (*snake)->y = new_y;
 }
 
 /*handle the replaced parts from adding to sorting 
     the default order is
     0 - tail
     1 - body
-    2 - head
+    2 - snake
     then sorting them acording to the (x,y) of part
 */
 /*
 
-void add_replace_part(snake_head **head, int x, int y, char type, int pos){
-    // printf("the placed parts: %p in (%d,%d) %c\n",(*head)->replaced, x, y, type);
-    ((*head)->replaced + pos)->x = x;
-    ((*head)->replaced + pos)->y = y;
-    // ((*head)->replaced + pos)->type = type;
+void add_replace_part(snake_head **snake, int x, int y, char type, int pos){
+    // printf("the placed parts: %p in (%d,%d) %c\n",(*snake)->replaced, x, y, type);
+    ((*snake)->replaced + pos)->x = x;
+    ((*snake)->replaced + pos)->y = y;
+    // ((*snake)->replaced + pos)->type = type;
 }
 
 void swaper(body_part *a, body_part *b){
@@ -165,9 +165,9 @@ void swaper(body_part *a, body_part *b){
     *b = temp;
 }
 
-void sort_the_replaced(snake_head **head){    
-    // printf("1- the replaced parts: %p\n",(*head)->replaced);
-    // for(body_part *ptr = (*head)->replaced; ptr < (*head)->replaced+3; ptr++){
+void sort_the_replaced(snake_head **snake){    
+    // printf("1- the replaced parts: %p\n",(*snake)->replaced);
+    // for(body_part *ptr = (*snake)->replaced; ptr < (*snake)->replaced+3; ptr++){
     //     printf("(%d,%d) %c\n", ptr->x, ptr->y, ptr->type);
     // }
 
@@ -175,22 +175,22 @@ void sort_the_replaced(snake_head **head){
     for(int i=0; i<3; i++){
         for(int j=i+1; j<3; j++){
             // sort the replaced parts by the y then the x from large to small
-            if((*head)->replaced[i].y > (*head)->replaced[j].y){
+            if((*snake)->replaced[i].y > (*snake)->replaced[j].y){
 
-                swaper((*head)->replaced+i, (*head)->replaced+j);
+                swaper((*snake)->replaced+i, (*snake)->replaced+j);
 
-            }else if((*head)->replaced[i].y == (*head)->replaced[j].y){
-                if((*head)->replaced[i].x > (*head)->replaced[j].x){
+            }else if((*snake)->replaced[i].y == (*snake)->replaced[j].y){
+                if((*snake)->replaced[i].x > (*snake)->replaced[j].x){
 
-                    swaper((*head)->replaced+i, (*head)->replaced+j);
+                    swaper((*snake)->replaced+i, (*snake)->replaced+j);
 
                 }
             }
         }
     }
 
-    // printf("2- the replaced parts: %p\n",(*head)->replaced);
-    // for(body_part *ptr = (*head)->replaced; ptr < (*head)->replaced+3; ptr++){
+    // printf("2- the replaced parts: %p\n",(*snake)->replaced);
+    // for(body_part *ptr = (*snake)->replaced; ptr < (*snake)->replaced+3; ptr++){
     //     printf("(%d,%d) %c\n", ptr->x, ptr->y, ptr->type);
     // }
 
@@ -201,41 +201,42 @@ void sort_the_replaced(snake_head **head){
 
 // helper functions
 
-int get_x(body_part *s){
-    return (s->x)%10;
+int get_x(body_part *snake_body){
+    return (snake_body->x)%10;
 }
-int get_y(body_part *s){
-    return (s->y)%10;
+int get_y(body_part *snake_body){
+    return (snake_body->y)%10;
 }
-void set_cordinate(body_part *s, int x, int y){
-    s->x = (x+10)%10;
-    s->y = (y+10)%10;
+void set_cordinate(body_part *snake_body, int x, int y){
+    snake_body->x = (x+10)%10;
+    snake_body->y = (y+10)%10;
 }
 int normalize(int x){
     return (x+10)%10;
 }
-void direction(snake_head **head, int *dir){
-    if(!(*dir))return;
-    queue_in((*head)->direction, *dir);
-    dir = 0;
+void direction(snake_head **snake, int *direction){
+    if(!(*direction))return;
+    queue_in((*snake)->direction_queue, *direction);
+    direction = 0;
 }
-void display_moves(snake_head *s, grid *grid){
+void display_moves(snake_head *snake){
     body_part data;
-    
-    if (!empty_body_ds(s->body_ds)){
-        head_body_ds(s->body_ds, &data);
+    grid *grid = snake->grid;
+    // printf("setting in grid gridpos.x = %d, gridpos.y = %dhgjfjfhg\n", grid->cursor_position_X, grid->cursor_position_Y );
+    if (!empty_body_ds(snake->body_data_structure)){
+        head_body_ds(snake->body_data_structure, &data);
         set_point_in_grid(grid, data.x, data.y, EMPTY);
         
-        if (!one_element_ds(s->body_ds)){
-            before_tail_body_ds(s->body_ds, &data);
+        if (!one_element_ds(snake->body_data_structure)){
+            before_tail_body_ds(snake->body_data_structure, &data);
             set_point_in_grid(grid, data.x, data.y, BODY);
         }
         
-        tail_body_ds(s->body_ds, &data);
+        tail_body_ds(snake->body_data_structure, &data);
         set_point_in_grid(grid, data.x, data.y, HEAD);
     }
 }
-void progamma_exit(snake_head **s){
-    set_point_in_grid((*s)->grid, (*s)->grid->posX, (*s)->grid->sizeY, ' ');
-    free((*s));
+void progamma_exit(snake_head **snake){
+    set_point_in_grid((*snake)->grid, (*snake)->grid->cursor_position_X, (*snake)->grid->sizeY, ' ');
+    free((*snake));
 }

@@ -1,35 +1,35 @@
 #include "grid.h"
 #include <stdio.h>
 
-void init_grid(grid **g, int sizeX, int sizeY, char empty_cells_type) {
+int init_grid(grid **g, int sizeX, int sizeY, char cells_character) {
     *g = malloc(sizeof(grid));
-    if(!(*g)) return;
-    // printf("Grid initialized.\n");
-    
+    if(!(*g)) return 0;
+    (*g)->empty_cells_character = cells_character;
     // initialize grid matrix and set default values to 0
     (*g)->sizeY = sizeY > 5 ? sizeY : 5;
+    (*g)->sizeX = sizeX >5 ? sizeX : 5;
+
     (*g)->matrix = malloc(sizeof(int*) * sizeY);
     
-    (*g)->sizeX = sizeX >5 ? sizeX : 5;
     
     for(int i = 0; i < sizeY; i++) {
         (*g)->matrix[i] = malloc(sizeof(int) * sizeX);
         for(int j = 0; j < sizeX; j++) {
             if (!i && !j) (*g)->matrix[i][j] = 2; // snake head (0,0) cordenate
             else (*g)->matrix[i][j] = 0;
-            // printf("%c ", (*g)->empty_cells_type);
-            printf("0 ");
+            printf("%c ", (*g)->empty_cells_character); // initialize the grid with empty cells
+            // printf("%d ", (*g)->matrix[i][j]); // initialize the grid with empty cells numiral value
         }
         printf("\n");
     }
     
-    (*g)->posX = 0;
-    (*g)->posY = sizeY;
+    (*g)->cursor_position_X = 0;
+    (*g)->cursor_position_Y = sizeY;
     
-    (*g)->empty_cells_type = empty_cells_type;
+    (*g)->empty_cells_character = cells_character;
     // (*g)->fp = fopen("file.txt", "w+");
     
-    // printf("Grid size: %d x %d and it\'s cells_type is %c\n", (*g)->posX, (*g)->posY, (*g)->empty_cells_type);
+    return 1;
 }
 
 // this function is call to initialize the printed grid or to reset it
@@ -37,7 +37,7 @@ void print_grid(grid *g) {
     // printf("printing. \n");
     for(int i = 0; i < g->sizeY; i++) {
         for(int j = 0; j < g->sizeX; j++) {
-            printf("%c ", g->empty_cells_type);
+            printf("%c ", g->empty_cells_character);
         }
         printf("\n");
     }
@@ -46,10 +46,10 @@ void print_grid(grid *g) {
 void go_to_point(grid *g, int x, int y) {
     int dirx , diry;
 
-    dirx = (x - g->posX) % 11;
-    diry = (y - g->posY) % 11;
-    g->posX = x + 1; // the + 1 is fro went print is get shifted to the right 
-    g->posY = y;
+    dirx = (x - g->cursor_position_X) % 11;
+    diry = (y - g->cursor_position_Y) % 11;
+    g->cursor_position_X = x + 1; // the + 1 is fro went print is get shifted to the right 
+    g->cursor_position_Y = y;
 
     // to navigate through the printed grid
     if(diry < 0) { // to move up
@@ -73,23 +73,25 @@ void go_to_point(grid *g, int x, int y) {
     }
 }
 
-void print_cell(char cells_type) {
-    printf("%c ", cells_type);
+void print_cell(char cells_character) {
+    printf("%c ", cells_character);
 }
 
-void set_point_in_grid(grid *g, int x, int y, char cells_type) {        
+void set_point_in_grid(grid *g, int x, int y, char cells_character) {        
     // if (g->fp == NULL) return;
     // fclose(g->fp);
     // g->fp = fopen("file.txt", "a+");
-    // fprintf(g->fp, "point: (%d, %d)\t gridpos: (%d, %d)\t distance: (%d, %d)\t cells_type: %c\n\n", x, y, g->posX, g->posY, (x - g->posX) % 11, (y - g->posY) % 11, cells_type);
-    if (cells_type == EMPTY){
+    // fprintf(g->fp, "point: (%d, %d)\t gridpos: (%d, %d)\t distance: (%d, %d)\t cells_character: %c\n\n", x, y, g->cursor_position_X, g->cursor_position_Y, (x - g->cursor_position_X) % 11, (y - g->cursor_position_Y) % 11, cells_character);
+    
+    
+    if (cells_character == EMPTY){
         g->matrix[y][x] = 0;
-    }else if (cells_type == BODY){
+    }else if (cells_character == BODY){
         g->matrix[y][x] = 1;
-    }else if (cells_type == HEAD){
+    }else if (cells_character == HEAD){
         g->matrix[y][x] = 2;
     }
-
+    
     go_to_point(g, x, y);
-    print_cell(cells_type);    
+    print_cell(cells_character);    
 }
