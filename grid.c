@@ -1,6 +1,7 @@
 #include "grid.h"
 #include <stdio.h>
 
+
 int init_grid(grid **g, int sizeX, int sizeY, char cells_character) {
     *g = malloc(sizeof(grid));
     if(!(*g)) return 0;
@@ -77,21 +78,46 @@ void print_cell(char cells_character) {
     printf("%c ", cells_character);
 }
 
-void set_point_in_grid(grid *g, int x, int y, char cells_character) {        
+int set_point_in_grid(grid *g, int x, int y, char cells_character) {        
     // if (g->fp == NULL) return;
     // fclose(g->fp);
     // g->fp = fopen("file.txt", "a+");
     // fprintf(g->fp, "point: (%d, %d)\t gridpos: (%d, %d)\t distance: (%d, %d)\t cells_character: %c\n\n", x, y, g->cursor_position_X, g->cursor_position_Y, (x - g->cursor_position_X) % 11, (y - g->cursor_position_Y) % 11, cells_character);
     
+/*
+    empty: 0
+    body: 1
+    head: 2
+    apple: 3
+*/
+/*
+    returns:
+    0: impossible to set
+    1: setting was successful
+    2: the head interfaces with an apple
+*/    
+
+
+    int snake_eats_apple = 0;
     
     if (cells_character == EMPTY){
         g->matrix[y][x] = 0;
+
     }else if (cells_character == BODY){
         g->matrix[y][x] = 1;
+
     }else if (cells_character == HEAD){
+        if(g->matrix[y][x] == 1) return 0;
+        if(g->matrix[y][x] == 3) snake_eats_apple = 1;
         g->matrix[y][x] = 2;
+
+    }else if (cells_character == APPLE){
+        if (g->matrix[y][x] == 0) g->matrix[y][x] = 3;
+        else return 0;
     }
     
     go_to_point(g, x, y);
-    print_cell(cells_character);    
+    print_cell(cells_character);
+    if (snake_eats_apple) return 2;
+    return 1;
 }

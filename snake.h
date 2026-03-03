@@ -11,6 +11,7 @@ typedef struct snake_head{
     int left, right, up, down; // keys to change direction
     int speed;
     int dirx, diry;
+    int apples_exist_number, max_apples_to_exist;
 
     double x, y;//retake look at it
     
@@ -30,13 +31,14 @@ void init_snake(snake_head **snake);
 void add_body_part(snake_head *snake);
 void set_direction(snake_head **snake, int dalta_time);
 void move_it(snake_head **snake, int dalta_time);
+void display_moves(snake_head *snake);
+void add_apple(snake_head *snake);
 
 int get_x(body_part *snake_body);
 int get_y(body_part *snake_body);
 void set_cordinate(body_part *snake_body, int x, int y);
 int normalize(int x);
 void direction(snake_head **snake, int *dir);
-void display_moves(snake_head *snake);
 void progamma_exit(snake_head **snake);
 
 #endif

@@ -1,7 +1,7 @@
 #include "snake.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <time.h>
 
 void init_snake(snake_head **snake){
     /* initialize the snake with default values
@@ -9,6 +9,8 @@ void init_snake(snake_head **snake){
           left, right, up, down
           speed = 10
           dirx = 1, diry = 0  
+          apples_exist_number = 0
+          max_apples_to_exist = 2
         x and y are used to indicate the start posintion 
           x = 10, y = 10
         }
@@ -23,8 +25,12 @@ void init_snake(snake_head **snake){
     (*snake)->down = DOWN;
     
     
-    (*snake)->speed = 20;
+    (*snake)->speed = 2;
     
+    (*snake)->apples_exist_number = 0;
+    (*snake)->max_apples_to_exist = 2;
+    srand(time(NULL));
+
     (*snake)->dirx = 1;
     (*snake)->diry = 0;
     
@@ -110,9 +116,10 @@ void move_it(snake_head **snake, int dalta_time){
     
     double new_x = 0.0, new_y = 0.0;
     if(!calculate_new_position(*snake, &new_x, &new_y, dalta_time))return;
-    // printf("move it x: %f y: %f\n", new_x, new_y);
+
     // check if the new position is deffrent from the old one
     if((int)new_x != (int)(*snake)->x || (int)new_y != (int)(*snake)->y){
+        
         // check if there is only one direction in the queue
         // if so stay in the same direction
         // else unqueue from the snake direction queue
@@ -127,6 +134,7 @@ void move_it(snake_head **snake, int dalta_time){
             free(dummy);
             free(dummy_test);
         }
+
         // remove the snake and add a new part to the end with the new position
         body_part *new_part = malloc(sizeof(body_part));
         
@@ -135,6 +143,8 @@ void move_it(snake_head **snake, int dalta_time){
         // move the snake
         display_moves(*snake);
         
+        add_apple(*snake);
+
         unbody_ds((*snake)->body_data_structure, new_part);
         free(new_part);
     }
@@ -142,6 +152,38 @@ void move_it(snake_head **snake, int dalta_time){
     (*snake)->x = new_x;
     (*snake)->y = new_y;
 }
+
+void display_moves(snake_head *snake){
+    body_part data;
+    grid *grid = snake->grid;
+    // printf("setting in grid gridpos.x = %d, gridpos.y = %dhgjfjfhg\n", grid->cursor_position_X, grid->cursor_position_Y );
+    if (!empty_body_ds(snake->body_data_structure)){
+        head_body_ds(snake->body_data_structure, &data);
+        set_point_in_grid(grid, data.x, data.y, EMPTY);
+        
+        if (!one_element_ds(snake->body_data_structure)){
+            before_tail_body_ds(snake->body_data_structure, &data);
+            set_point_in_grid(grid, data.x, data.y, BODY);
+        }
+        
+        tail_body_ds(snake->body_data_structure, &data);
+        int returns = set_point_in_grid(grid, data.x, data.y, HEAD);
+        if(returns == 0) progamma_exit(&snake);
+        else if (returns == 2){
+            snake->apples_exist_number--;
+            add_body_part(snake);
+        }
+    }
+}
+
+void add_apple(snake_head *snake){
+    if(snake->apples_exist_number < snake->max_apples_to_exist && rand() % 16 == 0){
+        int x = rand() % snake->grid->sizeX;
+        int y = rand() % snake->grid->sizeY;
+        if(set_point_in_grid(snake->grid, x, y, APPLE)) snake->apples_exist_number++;
+    }
+}
+
 
 /*handle the replaced parts from adding to sorting 
     the default order is
@@ -219,23 +261,7 @@ void direction(snake_head **snake, int *direction){
     queue_in((*snake)->direction_queue, *direction);
     direction = 0;
 }
-void display_moves(snake_head *snake){
-    body_part data;
-    grid *grid = snake->grid;
-    // printf("setting in grid gridpos.x = %d, gridpos.y = %dhgjfjfhg\n", grid->cursor_position_X, grid->cursor_position_Y );
-    if (!empty_body_ds(snake->body_data_structure)){
-        head_body_ds(snake->body_data_structure, &data);
-        set_point_in_grid(grid, data.x, data.y, EMPTY);
-        
-        if (!one_element_ds(snake->body_data_structure)){
-            before_tail_body_ds(snake->body_data_structure, &data);
-            set_point_in_grid(grid, data.x, data.y, BODY);
-        }
-        
-        tail_body_ds(snake->body_data_structure, &data);
-        set_point_in_grid(grid, data.x, data.y, HEAD);
-    }
-}
+
 void progamma_exit(snake_head **snake){
     set_point_in_grid((*snake)->grid, (*snake)->grid->cursor_position_X, (*snake)->grid->sizeY, ' ');
     free((*snake));

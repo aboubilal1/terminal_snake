@@ -32,7 +32,6 @@ int main(void) {
     int fps = 1000/30, dalta_time = fps;
     while(1){
         if (next_frame(last_move, &dalta_time, fps)){
-            Sleep(75);
             if (kbhit()) {
 
                 dir = getch();  // Real-time input

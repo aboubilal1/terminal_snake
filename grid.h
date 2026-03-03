@@ -4,9 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define HEAD '@'
-#define BODY 'O'
 #define EMPTY '.'
+#define BODY 'O'
+#define HEAD '@'
+#define APPLE '*'
 
 typedef struct grid{
     int sizeX, sizeY;
@@ -22,6 +23,6 @@ int init_grid(grid **g, int sizeX, int sizeY, char cells_character);
 void print_grid(grid *g);
 // void go_to_point(grid *g, int x, int y);
 // void print_cell(char cells_character);
-void set_point_in_grid(grid *g, int x, int y, char cells_character);
+int set_point_in_grid(grid *g, int x, int y, char cells_character);
 
 #endif
